@@ -1,5 +1,6 @@
 require 'page-object'
 require 'selenium-webdriver'
+require 'timeout'
 
 class DefaultPage
 
@@ -24,7 +25,23 @@ class DefaultPage
   end
 
   def click(by)
-    find_element(by).click
+
+    $driver.action.move_to(find_element(by)).click.perform
+  end
+
+  def excplicit_element_visible(by)
+    timeout = $SELENIUM_TIMEOUT
+    time_start = Time.now
+    time_running = 0
+    found = false
+    while time_running.to_i < timeout
+      found = element_visible(by)
+        break if found
+        sleep(1)
+        time_running = Time.now - time_start
+    end
+    raise StandardError.new("Error: Element searching by #{by}  was not found") unless found
+    found
   end
 
   def behind_click(by)
@@ -62,7 +79,7 @@ class DefaultPage
 
   # Виден ли элемент по локатору (возвращает true/false)
   def element_visible(by)
-    find_element(by).displayed? if element_exist(by)
+    element_exist(by) ? find_element(by).displayed? : false
   end
 
   # Очистить текст элемента по локатору

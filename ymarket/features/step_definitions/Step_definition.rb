@@ -42,16 +42,17 @@ When(/^Insert battery capacity "(.*)"$/) do |range|
 end
 
 Then(/^Verify that there is no products in list$/) do
-  expect(element_exist(xpath: "//*[contains(text(), 'Нет подходящих товаров')]")).to eq(true) or expect(element_exist(xpath: "//*[contains(text(), 'Таких товаров нет, увы')]")).to eq(true)
+  expect(element_exist(xpath: "//*[contains(text(), 'Нет подходящих товаров')]")).to be true or expect(element_exist(xpath: "//*[contains(text(), 'Таких товаров нет, увы')]")).to be true
 end
 
 Then(/^Verify that battery capacity is set "(.*)"$/) do |accum|
   is_checked = find_element(xpath: "//span[text()='#{accum} мА⋅ч']/parent::*/preceding::*[1]").attribute('checked')
   raise StandardError, 'Check-box not checked!' if is_checked.eq('')
-  expect(is_checked.to_s).to eq('true')
+  expect(is_checked.to_s).to be true
 end
 
 And(/^Verify all battery capacity on page in filter range "(.*)"$/) do |range|
+#  logger.info($driver.current_url)
   array = range.split('-')
   elements = find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
   elements.each do |i|
@@ -66,6 +67,7 @@ And(/^Verify all battery capacity on page in filter range "(.*)"$/) do |range|
     else
       raise StandardError, 'Incorrect battery capacity!'
     end
+    expect(rangeArr).to include(accum)
   end
 end
 
@@ -119,7 +121,7 @@ And(/^Verify all prices on all page in filter range from "(.*)" to "(.*)"$/) do 
   array = get_products_prices
   array.each do |i|
     element = i.text.gsub(/\s/, '')
-    expect((from..to).include?(element.to_i)).to eq(true)
+    expect((from..to).to_a).to include(element)
   end
   while element_exist(css: "[aria-label='Следующая страница']")
     next_page
@@ -127,7 +129,7 @@ And(/^Verify all prices on all page in filter range from "(.*)" to "(.*)"$/) do 
     array = get_products_prices
     array.each do |i|
       element = i.text.gsub(/\s/, '')
-      expect((from..to).include?(element.to_i)).to eq(true)
+      expect((from..to).to_a).to include(element)
     end
   end
 end
@@ -171,22 +173,32 @@ end
 Then(/^Verify that previous count equal to product list count$/) do
   previous = find_element(xpath: "//*[starts-with(text(), 'Найдено ')]").text
   previuos_count = previous.scan(/\d*/).join('')
-  actal_count = get_products_prices.length
-  expect(previuos_count.to eq(actal_count))
+  actual_count = get_products_prices.length
+  expect(previuos_count).to eq(actual_count)
 end
 
 And(/^Verify that products not in filer price from "(.*)" range$/) do |from|
   array = get_products_prices
+  any_price = nil
   array.each do |i|
-    element = i.text.gsub(/\s/, '')
-    break if element.to_i < from
+    element = i.text.gsub(/\s/, '').to_i
+    if element < from
+      any_price = element
+      break
+    end
   end
+  expect(any_price).not_to be_nil
 end
 
 And(/^Verify that products not in filer price to "(.*)" range$/) do |to|
   array = get_products_prices
+  any_price = nil
   array.each do |i|
-    element = i.text.gsub(/\s/, '')
-    break if element.to_i > to
+    element = i.text.gsub(/\s/, '').to_i
+    if any_price > to
+      any_price = element
+      break
+    end
   end
+  expect(any_price).not_to be_nil
 end
