@@ -3,17 +3,16 @@ require 'page-object'
 class MainPage < DefaultPage
 
   def select_search_category(category)
-    send_keys(category, id: "header-search")
-    sleep(5)
-    click(xpath: "//*[contains(text(), 'Найти')]")
-    sleep(5)
-    puts 'fall 1'
-    click(xpath: "//*[contains(text(), 'Смартфоны')]")
+    $wait.until { element_visible(id: "catalogPopupButton")}
+    click(id: "catalogPopupButton")
+    $wait.until { element_visible(xpath: "//a[text()='Смартфоны']")}
+    click(xpath: "//a[text()='#{category}']")
   end
 
-  def open_smart_category(url, category)
+  def open_category(url, category)
     open_url(url)
     select_search_category(category)
+    sleep(0.1)
   end
 
 end

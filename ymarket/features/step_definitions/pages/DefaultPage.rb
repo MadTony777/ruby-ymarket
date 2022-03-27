@@ -6,16 +6,18 @@ class DefaultPage
 
   def open_url(url)
     $driver.get url
+    anti_robot
   end
 
-  #Исполнить текст как руби код
-  def get_value(var)
-    eval("@@#{var}")
+  def anti_robot
+    if element_exist(xpath: "//*[contains(text(), 'Подтвердите, что запросы отправляли вы, а не робот')]")
+      click(class: 'CheckboxCaptcha-Button')
+    end
   end
 
   # Поиск элемента по локатору
   def find_element(by)
-    sleep 0.1
+    sleep(0.1)
     $driver.find_element(get_locator(by))
   end
 
@@ -25,27 +27,9 @@ class DefaultPage
   end
 
   def click(by)
-
     $driver.action.move_to(find_element(by)).click.perform
-  end
-
-  def excplicit_element_visible(by)
-    timeout = $SELENIUM_TIMEOUT
-    time_start = Time.now
-    time_running = 0
-    found = false
-    while time_running.to_i < timeout
-      found = element_visible(by)
-        break if found
-        sleep(1)
-        time_running = Time.now - time_start
-    end
-    raise StandardError.new("Error: Element searching by #{by}  was not found") unless found
-    found
-  end
-
-  def behind_click(by)
-    $driver.action.move_to(find_element(by)).click.perform
+    sleep(0.1)
+    anti_robot
   end
 
   def send_keys(keys, by)
@@ -100,64 +84,15 @@ class DefaultPage
 
   # Заменить текущую страницу
   def change_page_to(page)
-    $report_url = nil
-    case page
-    when 'Авторизация'
-      $page = LoginPage.new
-    when 'Администрирование'
-      $page = AdminPage.new
-    when 'Лицензия'
-      $page = LicensePage.new
-    when 'Субъекты'
-      $page = SubjectsPage.new
-    when 'КИ'
-      $page = KiPage.new
-    when 'Экспорт'
-      $page = ExportPage.new
-    when 'Проверка'
-      $page = CheckingPage.new
-    when 'Импорт'
-      $page = ImportPage.new
-    when 'Журналы'
-      $page = JournalPage.new
-    when 'Задачи'
-      $page = TasksPage.new
-    when 'Отчеты'
-      $page = ReportsPage.new
-    when 'Групповой запрос'
-      $page = GroupRequestPage.new
-    when 'Запрос кредитной истории НБКИ'
-      $page = RequestNbchPage.new
-    when 'Запрос кредитной истории Эквифакс'
-      $page = RequestEquifaxPage.new
-    when 'Запрос кредитной истории ОКБ'
-      $page = RequestExperianPage.new
-    when 'Запрос в ЦККИ'
-      $page = RequestCkkiPage.new
-    when 'Мегафон'
-      $page = MegafonPage.new
-    when 'МТС'
-      $page = MtsPage.new
-    when 'Поиск в Право ру'
-      $page = RequestPravoRuPage.new
-    when 'Поиск компании по реквизитам'
-      $page = CompaniesSearchPage.new
-    when 'MailRu'
-      $page = MailRuPage.new
-    when 'Редактирование параметров автоэкспорта'
-      $page = EditAutoexportPage.new
-    when 'Редактирование профиля коннектора'
-      $page = EditConnectorPage.new
-    when 'Редактирование стратегии триггеров'
-      $page = EditTriggersStrategy.new
-    when 'Журнал работы коннекторов'
-      $page = ConnectorJournalPage.new
-      $report_url = $driver.current_url
-    when 'Отчёт о кредитной истории'
-      $page = ShowReportPage.new
-      $report_url = $driver.current_url
-    else
-      $page = DefaultPage.new
-    end
+    $page = case page
+            when 'Main'
+              MainPage.new
+            when 'Filter'
+              FilterPage.new
+            when 'Product'
+              ProductPage.new
+            else
+              DefaultPage.new
+            end
   end
 end
