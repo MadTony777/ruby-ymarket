@@ -7,10 +7,10 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price from "1000"
-    Then Verify that price from is set "1000"
-    When Insert price to "5000"
-    Then Verify that price to is set "5000"
-    And Verify that poduct list not empty
+    And Insert price to "5000"
+    Then Verify that poduct list not empty
+    And Verify that price from is set "1000"
+    And Verify that price to is set "5000"
     And Verify all prices in filter range from "1000" to "5000"
 
   @2
@@ -18,23 +18,23 @@ Feature: ymarket testing
 
     Given Open smartphones category
     Then Verify that it is smartphones category
-    When Insert battery capacity "2000-2499"
-    Then Verify that battery capacity is set "2000-2499"
-    And Verify that poduct list not empty
-    And Verify all battery capacity on page in filter range "2000-2499"
+    When Insert battery capacity "1000-1999"
+    Then Verify that poduct list not empty
+    And Verify that battery capacity is set "1000-1999"
+    And Verify all battery capacity on page in filter range "1000-1999"
 
   @3
   Scenario: checking that url filter for prices is saving
 
     Given Open smartphones category
     Then Verify that it is smartphones category
-    When Insert price from "2000"
+    When Insert price from "1000"
     And Insert price to "4500"
-    And Save url and open it
-    Then Verify that price from is set "2000"
-    And Verify that price to is set "4500"
     And Verify that poduct list not empty
-    And Verify all prices in filter range from "2000" to "4500"
+    And Save url and open it
+    Then Verify that price from is set "1000"
+    And Verify that price to is set "4500"
+    And Verify all prices in filter range from "1000" to "4500"
 
   @4
   Scenario: checking that url filter for battery capacity is saving
@@ -42,9 +42,9 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert battery capacity "2000-2499"
+    And Verify that poduct list not empty
     And Save url and open it
     Then Verify that battery capacity is set "2000-2499"
-    And Verify that poduct list not empty
     And Verify all battery capacity on page in filter range "2000-2499"
 
   @5
@@ -62,10 +62,10 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price to "7000"
-    And Insert battery capacity "1000-1999"
-    Then Verify that battery capacity is set "1000-1999"
-    And Verify that poduct list not empty
-    And Verify all battery capacity on all pages in filter range "1000-1999"
+    And Insert battery capacity "2000-2499"
+    Then Verify that poduct list not empty
+    And Verify that battery capacity is set "2000-2499"
+    And Verify all battery capacity on all pages in filter range "2000-2499"
 
   @7
   Scenario: checking that price filter working correct on all pages
@@ -74,9 +74,9 @@ Feature: ymarket testing
     Then Verify that it is smartphones category
     When Insert price from "1000"
     And Insert price to "5800"
-    Then Verify that price from is set "1000"
+    Then Verify that poduct list not empty
+    And Verify that price from is set "1000"
     And Verify that price to is set "5800"
-    And Verify that poduct list not empty
     And Verify all prices on all page in filter range from "1000" to "5800"
 
   @8
@@ -85,12 +85,13 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert battery capacity "3000-3499"
-    Then Verify that battery capacity is set "3000-3499"
+    Then Verify that poduct list not empty
     When Insert price from "4000"
-    Then Verify that price from is set "4000"
     When Insert price to "8000"
-    Then Verify that price to is set "8000"
-    And Verify that poduct list not empty
+    Then Verify that poduct list not empty
+    And Verify that battery capacity is set "3000-3499"
+    And Verify that price from is set "4000"
+    And Verify that price to is set "8000"
     And Verify all prices in filter range from "4000" to "8000"
     And Verify all battery capacity on page in filter range "3000-3499"
 
@@ -124,12 +125,13 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price from "3000"
-    Then Verify that price from is set "3000"
     When Insert price to "8000"
+    And Verify that poduct list not empty
+    Then Verify that price from is set "3000"
     Then Verify that price to is set "8000"
     When Insert battery capacity "3000-3499"
-    Then Verify that battery capacity is set "3000-3499"
     And Verify that poduct list not empty
+    Then Verify that battery capacity is set "3000-3499"
     And Verify all prices in filter range from "3000" to "8000"
     And Verify all battery capacity on page in filter range "3000-3499"
 
@@ -198,3 +200,23 @@ Feature: ymarket testing
     Then Verify that it is smartphones category
     When Insert price to "12345678912345678"
     Then Verify that price to is set "12345678910000000"
+
+  @19
+  Scenario: checking filter return correct battery capacity 2
+
+    Given Open smartphones category
+    Then Verify that it is smartphones category
+    When Insert battery capacity "2500-2999"
+    Then Verify that poduct list not empty
+    And Verify that battery capacity is set "2500-2999"
+    And Verify all battery capacity on page in filter range "2500-2999"
+
+  @20
+  Scenario: checking filter return correct battery capacity 3
+
+    Given Open smartphones category
+    Then Verify that it is smartphones category
+    When Insert battery capacity "3500-4499"
+    Then Verify that poduct list not empty
+    And Verify that battery capacity is set "3500-4499"
+    And Verify all battery capacity on page in filter range "3500-4499"

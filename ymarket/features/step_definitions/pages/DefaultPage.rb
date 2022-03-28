@@ -45,6 +45,7 @@ class DefaultPage
   end
 
   def switch_last_tab
+    sleep(0.1)
     $driver.switch_to.window($driver.window_handles.last)
   end
 
@@ -81,6 +82,9 @@ class DefaultPage
     end
   end
 
+  def page_loading
+    element_exist(css: "[aria-label='Загрузка...']") ? false : true
+  end
 
   # Заменить текущую страницу
   def change_page_to(page)

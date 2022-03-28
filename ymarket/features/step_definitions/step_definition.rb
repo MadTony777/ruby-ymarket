@@ -8,43 +8,40 @@ Given(/^Open smartphones category$/) do
 end
 
 Then(/^Verify that it is smartphones category$/) do
-  #$wait.until { default.element_visible(css: "[data-grabber='SearchTitle'] h1") }
+  $wait.until { default.element_exist(css: "[data-grabber='SearchTitle'] h1") }
   expect(default.find_element(css: "[data-grabber='SearchTitle'] h1").text).to eq('Смартфоны')
 end
 
 When(/^Insert price from "(.*)"$/) do |from|
-  $wait.until { default.element_visible(id: 'glpricefrom') }
+  $wait.until { default.element_exist(id: 'glpricefrom') }
   filter.set_price_from(from)
 end
 
 Then(/^Verify that price from is set "(.*)"$/) do |from|
-  default.click(xpath: "//html")
-  $wait.until { default.element_visible(id: 'glpricefrom') }
+  $wait.until { default.element_exist(id: 'glpricefrom') }
   expect(default.find_element(id: 'glpricefrom').attribute('value')).to eq(from.to_s)
 end
 
 When(/^Insert price to "(.*)"$/) do |to|
-  $wait.until { default.element_visible(id: 'glpriceto') }
+  $wait.until { default.element_exist(id: 'glpriceto') }
   filter.set_price_to(to)
 end
 
 Then(/^Verify that price to is set "(.*)"$/) do |to|
-  default.click(xpath: "//html")
-  $wait.until { default.element_visible(id: 'glpriceto') }
+  $wait.until { default.element_exist(id: 'glpriceto') }
   expect(default.find_element(id: 'glpriceto').attribute('value')).to eq(to.to_s)
 end
 
-
 And(/^Verify all prices in filter range from "(.*)" to "(.*)"$/) do |from, to|
-  sleep(4)
-  # $wait.until { default.element_visible(xpath: "//*[contains(text(), 'Найдено')]") }
-  # $wait.until { !default.element_visible(css: "[aria-label='Загрузка...']") }
+  puts('step 0')
+  $wait.until { default.page_loading }
+  puts('step 1')
   array = filter.get_products_prices
   expect(array.count).not_to be_nil
   ar_range = (from..to).to_a
   array.each do |i|
     element = i.text.gsub(/\s/, '')
-    expect(ar_range.include?(element)).to be true
+    expect(ar_range).to include(element)
   end
 end
 
@@ -59,19 +56,13 @@ When(/^Insert battery capacity "(.*)"$/) do |range|
   filter.set_battery_filter("#{array[0]}-#{array[1]}")
 end
 
-Then(/^Verify that there is no products in list$/) do
-  $wait.until { default.element_visible(xpath: "//*[contains(text(), 'Найдено')]") }
-  expect(default.element_exist(xpath: "//*[contains(text(), 'Таких товаров нет, увы')]")).to be true
-end
-
 Then(/^Verify that battery capacity is set "(.*)"$/) do |accum|
-  sleep(1)
   is_checked = default.find_element(xpath: "//span[text()='#{accum} мА⋅ч']/parent::*/preceding::*[1]").attribute('checked')
   expect(is_checked).to eq('true')
 end
 
 And(/^Verify all battery capacity on page in filter range "(.*)"$/) do |range|
-  sleep(5)
+  $wait.until { default.page_loading }
   array = range.split('-')
   range_arr = (array[0]..array[1]).to_a
   elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
@@ -79,7 +70,7 @@ And(/^Verify all battery capacity on page in filter range "(.*)"$/) do |range|
     $driver.action.move_to(i).click.perform
     default.switch_last_tab
     break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
-    $wait.until { default.element_visible(xpath: "//*[contains(text(), ' мА·ч')]") }
+    $wait.until { default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]") }
     accum = product.get_accum_on_page.to_s
     if range_arr.include? accum
       default.close_tab
@@ -102,14 +93,14 @@ And(/^Verify all battery capacity not in filter range "(.*)"$/) do |range|
 end
 
 And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |range|
-  sleep(5)
+  $wait.until { default.page_loading }
   array = range.split('-')
   range_arr = (array[0]..array[1]).to_a
   elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
   elements.each do |i|
     $driver.action.move_to(i).click.perform
-    $wait.until { default.element_visible(xpath: "//*[contains(text(), ' мА·ч')]") }
     default.switch_last_tab
+    $wait.until { default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]") }
     break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
     accum = product.get_accum_on_page.to_s
     if range_arr.include? accum
@@ -122,14 +113,14 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
   end
   while default.element_exist(css: "[aria-label='Следующая страница']")
     filter.next_page
-    sleep(5)
+    $wait.until { default.page_loading }
     array = range.split('-')
     range_arr = (array[0]..array[1]).to_a
     elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
     elements.each do |i|
       $driver.action.move_to(i).click.perform
-      $wait.until { default.element_visible(xpath: "//*[contains(text(), ' мА·ч')]") }
       default.switch_last_tab
+      $wait.until { default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]") }
       break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
       accum = product.get_accum_on_page.to_s
       if range_arr.include? accum
@@ -144,7 +135,7 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
 end
 
 And(/^Verify all prices on all page in filter range from "(.*)" to "(.*)"$/) do |from, to|
-  sleep(4)
+  $wait.until { default.page_loading }
   array = filter.get_products_prices
   expect(array.count).not_to be_nil
   ar_range = (from..to).to_a
@@ -154,13 +145,13 @@ And(/^Verify all prices on all page in filter range from "(.*)" to "(.*)"$/) do 
   end
   while default.element_exist(css: "[aria-label='Следующая страница']")
     filter.next_page
-    sleep(4)
+    $wait.until { default.page_loading }
     array = filter.get_products_prices
     expect(array.count).not_to be_nil
     ar_range = (from..to).to_a
     array.each do |i|
       element = i.text.gsub(/\s/, '')
-      expect(ar_range.include?(element)).to be true
+      expect(ar_range).to include(element)
     end
   end
 end
@@ -202,7 +193,7 @@ Then(/^Verify that price "(.*)" to was cleared$/) do |value|
 end
 
 Then(/^Verify that previous count equal to product list count$/) do
-  $wait.until { default.element_visible(xpath: "//*[contains(text(), 'Найдено')]") }
+  $wait.until { default.element_exist(xpath: "//*[contains(text(), 'Найдено')]") }
   previous = default.find_element(xpath: "//*[contains(text(), 'Найдено')]").text
   previuos_count = previous.scan(/\d*/).join('')
   default.find_element(css: "[data-zone-name='price'] [data-autotest-currency] span:first-of-type")
@@ -225,7 +216,7 @@ And(/^Verify that products not in filer price from "(.*)" range$/) do |from|
 end
 
 And(/^Verify that products not in filer price to "(.*)" range$/) do |to|
-  sleep(5)
+  $wait.until { default.page_loading }
   array = filter.get_products_prices
   any_price = nil
   array.each do |i|
@@ -238,7 +229,12 @@ And(/^Verify that products not in filer price to "(.*)" range$/) do |to|
   expect(any_price).not_to be_nil
 end
 
+Then(/^Verify that there is no products in list$/) do
+  $wait.until { default.element_exist(xpath: "//*[contains(text(), 'Найдено')]") }
+  expect(default.element_exist(xpath: "//*[contains(text(), 'Таких товаров нет, увы')]")).to be true
+end
+
 And(/^Verify that poduct list not empty$/) do
-  # $wait.until { !default.element_visible(css: "[aria-label='Загрузка...']") }
+  $wait.until { default.element_exist(xpath: "//*[contains(text(), 'Найдено')]") }
   expect(default.element_exist(xpath: "//*[contains(text(), 'Таких товаров нет, увы')]")).to be false
 end
