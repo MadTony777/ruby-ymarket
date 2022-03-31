@@ -172,7 +172,7 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price from "1000"
-    And Insert price to "8000"
+    And Insert price to "5500"
     And Verify that poduct list not empty
     Then Verify that previous count equal to product list count
 

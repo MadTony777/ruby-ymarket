@@ -15,22 +15,22 @@ Then(/^Verify that it is smartphones category$/) do
 end
 
 When(/^Insert price from "(.*)"$/) do |from|
-  default.wait_until_visible(id: 'glpricefrom')
+  default.wait_until_exist(id: 'glpricefrom')
   filter.set_price_from(from)
 end
 
 Then(/^Verify that price from is set "(.*)"$/) do |from|
-  default.wait_until_visible(id: 'glpricefrom')
+  default.wait_until_exist(id: 'glpricefrom')
   expect(default.find_element(id: 'glpricefrom').attribute('value')).to eq(from.to_s)
 end
 
 When(/^Insert price to "(.*)"$/) do |to|
-  default.wait_until_visible(id: 'glpriceto')
+  default.wait_until_exist(id: 'glpriceto')
   filter.set_price_to(to)
 end
 
 Then(/^Verify that price to is set "(.*)"$/) do |to|
-  default.wait_until_visible(id: 'glpriceto')
+  default.wait_until_exist(id: 'glpriceto')
   expect(default.find_element(id: 'glpriceto').attribute('value')).to eq(to.to_s)
 end
 
@@ -56,7 +56,7 @@ And(/^Save url and open it$/) do
 end
 
 When(/^Insert battery capacity "(.*)"$/) do |range|
-  default.wait_until_visible(xpath: "//*[contains(text(), '#{range} мА⋅ч')]")
+  default.wait_until_exist(xpath: "//*[contains(text(), '#{range} мА⋅ч')]")
   array = range.split('-')
   filter.set_battery_filter("#{array[0]}-#{array[1]}")
 end
@@ -78,7 +78,7 @@ And(/^Verify all battery capacity on page in filter range "(.*)"$/) do |range|
     $driver.action.move_to(i).click.perform
     default.switch_last_tab
     # default.wait_until_visible(xpath: "//*[contains(text(), 'мА·ч')]")
-    default.wait_until_visible(xpath: "//*[contains(text(), 'Коротко о товаре')]")
+    default.wait_until_exist(xpath: "//*[contains(text(), 'Коротко о товаре')]")
     next unless default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]")
     break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
     accum = product.get_accum_on_page.to_s
@@ -103,7 +103,7 @@ And(/^Verify all battery capacity not in filter range "(.*)"$/) do |range|
   elements.each do |i|
     $driver.action.move_to(i).click.perform
     default.switch_last_tab
-    default.wait_until_visible(xpath: "//*[contains(text(), 'мА·ч')]")
+    default.wait_until_exist(xpath: "//*[contains(text(), 'мА·ч')]")
     break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
     accum = product.get_accum_on_page
     break if accum.to_i < array[0].to_i || accum.to_i > array[1].to_i
@@ -123,7 +123,7 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
   elements.each do |i|
     $driver.action.move_to(i).click.perform
     default.switch_last_tab
-    default.wait_until_visible(xpath: "//*[contains(text(), 'Коротко о товаре')]")
+    default.wait_until_exist(xpath: "//*[contains(text(), 'Коротко о товаре')]")
     next unless default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]")
     break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
     accum = product.get_accum_on_page.to_s
@@ -147,7 +147,7 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
     elements.each do |i|
       $driver.action.move_to(i).click.perform
       default.switch_last_tab
-      default.wait_until_visible(xpath: "//*[contains(text(), 'Коротко о товаре')]")
+      default.wait_until_exist(xpath: "//*[contains(text(), 'Коротко о товаре')]")
       next unless default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]")
       break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
       accum = product.get_accum_on_page.to_s
@@ -227,30 +227,19 @@ end
 Then(/^Verify that previous count equal to product list count$/) do
   default.wait_until_has_text(xpath: "//*[contains(text(), 'Найдено')]")
   previous = default.find_element(xpath: "//*[contains(text(), 'Найдено')]").text
-  puts "previous: #{previous}"
   previuos_count = previous.scan(/Найдено\s\d*/).join('').scan(/\d*/).join('')
-  # previuos_count = previous.scan(/\d*/).join('')
-  puts "pre: #{previuos_count.to_i}"
   actual_count = 0
-  filter.get_list.each do |i|
-    actual_count += 1 if default.wait_until_child_element_not_exist(i, xpath: "//*[contains(text(), 'Нет в продаже')]")
-  end
-
-  expect(actual_count).not_to be_nil
-  if default.element_exist(css: "[aria-label='Следующая страница']")
-    while default.element_exist(css: "[aria-label='Следующая страница']")
-      filter.next_page
-      if default.element_exist(css: "[aria-label='Загрузка...']")
-        default.wait_until_disappear(css: "[aria-label='Загрузка...']")
-      end
-      filter.get_list.each do |i|
-        actual_count += 1 if default.wait_until_child_element_not_exist(i, xpath: "//*[contains(text(), 'Нет в продаже')]")
-      end
-
-      puts "real: #{actual_count}"
+  loop do
+    filter.get_list.each do |i|
+      actual_count += 1 if default.wait_until_child_element_not_exist(i, xpath: "//*[contains(text(), 'Нет в продаже')]")
+    end
+    break unless default.element_exist(css: "[aria-label='Следующая страница']")
+    puts'next page'
+    filter.next_page
+    if default.element_exist(css: "[aria-label='Загрузка...']")
+      default.wait_until_disappear(css: "[aria-label='Загрузка...']")
     end
   end
-  puts $driver.current_url
   expect(previuos_count.to_i).to eq(actual_count)
 end
 
@@ -299,3 +288,6 @@ end
 Then(/^Wait$/) do
   sleep(2)
 end
+
+
+

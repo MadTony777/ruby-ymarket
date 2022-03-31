@@ -3,9 +3,9 @@ require 'page-object'
 class MainPage < DefaultPage
 
   def select_search_category(category)
-    wait_until_visible(id: "catalogPopupButton")
+    wait_until_exist(id: "catalogPopupButton")
     click(id: "catalogPopupButton")
-    wait_until_visible(xpath: "//a[text()='#{category}']")
+    wait_until_exist(xpath: "//a[text()='#{category}']")
     click(xpath: "//a[text()='#{category}']")
   end
 
