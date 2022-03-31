@@ -21,10 +21,19 @@ class FilterPage < DefaultPage
 
   def next_page
     click(css: "[aria-label='Следующая страница']")
+    sleep(0.1)
   end
 
   def get_products_prices
     find_elements(css: "[data-zone-name='price'] [data-autotest-currency] span:first-of-type")
+  end
+
+  def get_list
+    find_elements(css: "[data-autotest-id='product-snippet']")
+  end
+
+  def get_full_list
+    find_elements(css: "[data-autotest-id='product-snippet'] [data-node-name='title']")
   end
 
   def get_product_price

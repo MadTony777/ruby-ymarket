@@ -9,6 +9,10 @@ class DefaultPage
     anti_robot
   end
 
+  def get_url
+    $driver.current_url
+  end
+
   def anti_robot
     if element_exist(xpath: "//*[contains(text(), 'Подтвердите, что запросы отправляли вы, а не робот')]")
       click(class: 'CheckboxCaptcha-Button')
@@ -19,6 +23,23 @@ class DefaultPage
   def find_element(by)
     sleep(0.1)
     $driver.find_element(get_locator(by))
+  end
+
+  def find_element_in_element(element, locator)
+    sleep(0.1)
+    element.find_element(get_locator(locator))
+  end
+
+  def wait_until_child_element_not_exist(element, locator)
+    $driver.manage.timeouts.implicit_wait = 0
+    begin
+      element.find_element(get_locator(locator))
+      false
+    rescue Selenium::WebDriver::Error::NoSuchElementError
+      true
+    ensure
+      $driver.manage.timeouts.implicit_wait = 0
+    end
   end
 
   # Поиск элементов по локатору
@@ -62,10 +83,10 @@ class DefaultPage
     exist
   end
 
-  # Виден ли элемент по локатору (возвращает true/false)
-  def element_visible(by)
-    element_exist(by) ? find_element(by).displayed? : false
-  end
+  # # Виден ли элемент по локатору (возвращает true/false)
+  # def element_visible(by)
+  #   element_exist(by) ? find_element(by).displayed? : false
+  # end
 
   # Очистить текст элемента по локатору
   def clear_element(by)
@@ -76,14 +97,44 @@ class DefaultPage
   def get_locator(by)
     case by
     when Hash
-      return by
+      by
     when String
-      return $page.get_value(by)
+      $page.get_value(by)
     end
   end
 
-  def page_loading
-    element_exist(css: "[aria-label='Загрузка...']") ? false : true
+
+  def wait_until_visible(by)
+    (0..$WAIT).each do
+      if !element_exist(by)
+        sleep(1)
+      else
+        break
+      end
+    end
+    element_exist(by)
+  end
+
+  def wait_until_has_text(by)
+    (0..$WAIT).each do
+      if !element_exist(by) or find_element(by).text.empty?
+        sleep(1)
+      else
+        break
+      end
+    end
+    element_exist(by)
+  end
+
+  def wait_until_disappear(by)
+    (0..$WAIT).each do
+      if element_exist(by)
+        sleep(1)
+      else
+        break
+      end
+    end
+    !element_exist(by)
   end
 
   # Заменить текущую страницу

@@ -171,8 +171,8 @@ Feature: ymarket testing
 
     Given Open smartphones category
     Then Verify that it is smartphones category
-    When Insert price from "2500"
-    And Insert price to "5300"
+    When Insert price from "1000"
+    And Insert price to "8000"
     And Verify that poduct list not empty
     Then Verify that previous count equal to product list count
 
@@ -191,7 +191,8 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price from "12345678912345678"
-    Then Verify that price from is set "12345678910000000"
+    Then Wait
+    And Verify that price from is set "12345678910000000"
 
   @18
   Scenario: checking acceptable length of field to
@@ -199,7 +200,8 @@ Feature: ymarket testing
     Given Open smartphones category
     Then Verify that it is smartphones category
     When Insert price to "12345678912345678"
-    Then Verify that price to is set "12345678910000000"
+    Then Wait
+    And Verify that price to is set "12345678910000000"
 
   @19
   Scenario: checking filter return correct battery capacity 2

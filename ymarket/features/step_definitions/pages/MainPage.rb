@@ -3,9 +3,9 @@ require 'page-object'
 class MainPage < DefaultPage
 
   def select_search_category(category)
-    $wait.until { element_visible(id: "catalogPopupButton")}
+    wait_until_visible(id: "catalogPopupButton")
     click(id: "catalogPopupButton")
-    $wait.until { element_visible(xpath: "//a[text()='Смартфоны']")}
+    wait_until_visible(xpath: "//a[text()='#{category}']")
     click(xpath: "//a[text()='#{category}']")
   end
 
