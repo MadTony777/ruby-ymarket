@@ -118,31 +118,8 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
   end
   array = range.split('-')
   range_arr = (array[0]..array[1]).to_a
-  # elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
-  elements = filter.get_full_list
-  elements.each do |i|
-    $driver.action.move_to(i).click.perform
-    default.switch_last_tab
-    default.wait_until_exist(xpath: "//*[contains(text(), 'Коротко о товаре')]")
-    next unless default.element_exist(xpath: "//*[contains(text(), 'мА·ч')]")
-    break if default.element_exist(xpath: "//*[contains(text(), 'Нет в продаже')]")
-    accum = product.get_accum_on_page.to_s
-    if range_arr.include? accum
-      default.close_tab
-      default.switch_first_tab
-    else
-      raise StandardError, 'Incorrect battery capacity!'
-    end
-    expect(range_arr).to include(accum)
-  end
-  while default.element_exist(css: "[aria-label='Следующая страница']")
-    filter.next_page
-    if default.element_exist(css: "[aria-label='Загрузка...']")
-      default.wait_until_disappear(css: "[aria-label='Загрузка...']")
-    end
-    array = range.split('-')
-    range_arr = (array[0]..array[1]).to_a
-    # elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
+# elements = default.find_elements(xpath: "//*[contains(text(), 'Смартфон ')]")
+  loop do
     elements = filter.get_full_list
     elements.each do |i|
       $driver.action.move_to(i).click.perform
@@ -159,6 +136,11 @@ And(/^Verify all battery capacity on all pages in filter range "(.*)"$/) do |ran
       end
       expect(range_arr).to include(accum)
     end
+    break unless default.element_exist(css: "[aria-label='Следующая страница']")
+    filter.next_page
+    if default.element_exist(css: "[aria-label='Загрузка...']")
+      default.wait_until_disappear(css: "[aria-label='Загрузка...']")
+    end
   end
 end
 
@@ -166,24 +148,18 @@ And(/^Verify all prices on all page in filter range from "(.*)" to "(.*)"$/) do 
   if default.element_exist(css: "[aria-label='Загрузка...']")
     default.wait_until_disappear(css: "[aria-label='Загрузка...']")
   end
-  array = filter.get_products_prices
-  expect(array.count).not_to be_nil
   ar_range = (from..to).to_a
-  array.each do |i|
-    element = i.text.gsub(/\s/, '')
-    expect(ar_range.include?(element)).to be true
-  end
-  while default.element_exist(css: "[aria-label='Следующая страница']")
+  loop do
+    array = filter.get_products_prices
+    expect(array.count).not_to be_nil
+    array.each do |i|
+      element = i.text.gsub(/\s/, '')
+      expect(ar_range.include?(element)).to be true
+    end
+    break unless default.element_exist(css: "[aria-label='Следующая страница']")
     filter.next_page
     if default.element_exist(css: "[aria-label='Загрузка...']")
       default.wait_until_disappear(css: "[aria-label='Загрузка...']")
-    end
-    array = filter.get_products_prices
-    expect(array.count).not_to be_nil
-    ar_range = (from..to).to_a
-    array.each do |i|
-      element = i.text.gsub(/\s/, '')
-      expect(ar_range).to include(element)
     end
   end
 end
@@ -234,7 +210,6 @@ Then(/^Verify that previous count equal to product list count$/) do
       actual_count += 1 if default.wait_until_child_element_not_exist(i, xpath: "//*[contains(text(), 'Нет в продаже')]")
     end
     break unless default.element_exist(css: "[aria-label='Следующая страница']")
-    puts'next page'
     filter.next_page
     if default.element_exist(css: "[aria-label='Загрузка...']")
       default.wait_until_disappear(css: "[aria-label='Загрузка...']")

@@ -9,3 +9,5 @@ $WAIT = 20
 $DRIVER_PATH = './features/support/drivers/chromedriver.exe'
 $page = DefaultPage.new
 $logger = Logger.new(STDOUT)
+
+
