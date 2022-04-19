@@ -7,7 +7,7 @@ Before do |scenario|
 end
 
 After do |scenario|
-  $driver.close
+  $driver ? $driver.close : error('Something went wrong.')
 end
 
 
