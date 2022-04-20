@@ -8,15 +8,15 @@ end
 
 After do |scenario|
   $driver ? $driver.close : error('Something went wrong.')
+  if scenario.failed?
+    # encoded_img = $driver.screenshot_as(:base64)
+    embed("data:image/png;base64,#{$encoded_img}",'image/png')
+  end
 end
 
 
 AfterStep do |scenario|
   $logger.info('current url is: ' + $driver.current_url)
-  if scenario.failed?
-    # encoded_img = $driver.screenshot_as(:base64)
-    embed("data:image/png;base64,#{$encoded_img}",'image/png')
-  end
 end
 
 
