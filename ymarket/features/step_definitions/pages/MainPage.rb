@@ -3,7 +3,8 @@ require 'page-object'
 class MainPage < DefaultPage
 
   def select_search_category(category)
-    $driver.save_screenshot("./screen.png")
+    # $driver.save_screenshot("./screen.png")
+    $encoded_img = $driver.screenshot_as(:base64)
     wait_until_exist(id: "catalogPopupButton")
     click(id: "catalogPopupButton")
     wait_until_exist(xpath: "//a[text()='#{category}']")
